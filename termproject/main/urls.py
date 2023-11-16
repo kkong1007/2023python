@@ -2,10 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from . import views
 
+app_name = 'item'
+
 urlpatterns = [
-    path('', views.main, name='main'),
-    # path('erp/', views.erp, name='erp'),
-    # path('erp/<int:id>', views.detailed_erp, name='detail-erp'),
-    # path('erp/new', views.erp_goods_new, name='erp-goods-new'),
-    # path('erp/stock/<int:goods_id>', views.erp_goods_stock, name='erp-goods-stock'),
+    path('', views.main, name='list'),
+    path('<int:id>', views.detail, name='detail'),
+    path('create', views.create, name='create')
 ]

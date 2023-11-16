@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}
+    추가
+{% endblock %}
+
+{% block content %}
+    <div class="media-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="생성">
+        </form>
+    </div>
+{% endblock %}
