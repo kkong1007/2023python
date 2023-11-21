@@ -32,14 +32,30 @@
             </tbody>
         </table>
     </div>
-    <dialog class="item-dialog">
+    <dialog class="item-dialog" style="width: 50%">
         <div><strong>이력 관리</strong></div>
         <form action="" method="dialog">
+            <select name="op_code" id="op-code">
+                <option value="0">출고</option>
+                <option value="1">입고</option>
+            </select>
             <input type="text" readonly />
             <button type="submit">저장</button>
         </form>
-
-        <div id="histories"></div>
+        <button type="submit" id="dialog-close">닫기</button>
+        <div id="histories">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">입/출고</th>
+                        <th scope="col">재고</th>                    
+                        <th scope="col">날짜</th>
+                    </tr>
+                    </thead>
+                    <tbody id="histories-tbody">
+                    </tbody>
+            </table>
+        </div>
     </dialog>
 {% endblock %}
 
@@ -55,11 +71,21 @@
     }
 
     function makeHistoryItem(json) {
-        let parent = document.querySelector("#histories");
+        let parent = document.querySelector("#histories-tbody");
         json.histories.forEach(history => {
-            let child = document.createElement("div");
-            child.innerText = `${history.weight}-${history.created_at}`;
-            parent.appendChild(child);
+            let tr = document.createElement("tr");
+            let td1 = document.createElement("td");
+            td1.innerHTML = history.op_code ? "입고" : "출고";
+            let td2 = document.createElement("td");
+            td2.innerHTML = history.weight;
+            let td3 = document.createElement("td");
+            td3.innerHTML = history.created_at;
+
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+
+            parent.appendChild(tr);
         });
     }
 
@@ -79,7 +105,13 @@
     });
 
     dialog.addEventListener("close", e => {
-        document.querySelector("#histories").innerHTML = "";
+        document.querySelector("#histories-tbody").innerHTML = "";
+    });
+
+    const dialogClose = document.querySelector("#dialog-close");
+    dialogClose.addEventListener("click", e => {
+        e.preventDefault();
+        dialog.close();
     })
 </script>
 {% endblock %}

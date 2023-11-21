@@ -1,14 +1,33 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+
 {% block title %}
-    추가
+추가
 {% endblock %}
 
 {% block content %}
-    <div class="media-body">
-        <form action="" method="post">
-            {% csrf_token %}
-            {{ form }}
-            <input type="submit" value="생성">
-        </form>
-    </div>
+<div class="media-body">
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.name|add_label_class:""}}
+            {{ form.name|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            {{ form.weight|add_label_class:"" }}
+            {{ form.weight|add_class:"form-control"|attr:"id:post_content" }}
+        </div>
+        <div class="form-group">
+            <select name="category_id" id="categoryId">
+                {% for category in category_list %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="date" name="stocked_date">
+        </div>
+        <input type="submit" value="생성">
+    </form>
+</div>
 {% endblock %}

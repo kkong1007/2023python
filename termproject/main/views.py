@@ -18,6 +18,7 @@ def detail(request, id):
         {
             "id": history.id,
             "weight": history.weight,
+            "op_code": history.op_code,
             "created_at": history.created_at,
         }
         for history in histories
@@ -32,15 +33,20 @@ def detail(request, id):
 
 def create(request):
     if request.method == 'GET':
+        category_list = Category.objects.all()
         new_form = NewItemFrom()
         return render(request, 'create.html', context={
-            'form': new_form
+            'form': new_form,
+            'category_list': category_list
         })
     elif request.method == 'POST':
         form = NewItemFrom(request.POST)
 
         if form.is_valid():
-            Item.objects.create(name=form.cleaned_data.get('name'), weight=form.cleaned_data.get('weight'),
-                                category_id=form.cleaned_data.get('category_id'),
-                                stocked_date=form.cleaned_data.get('stocked_date'))
+            new_item = Item.objects.create(name=form.cleaned_data.get('name'), weight=form.cleaned_data.get('weight'),
+                                         category_id=form.cleaned_data.get('category_id'),
+                                         stocked_date=form.cleaned_data.get('stocked_date'))
+
+            ItemStoredHistory.objects.create(item=new_item, weight=form.cleaned_data.get('weight'))
+
             return redirect(to="item:list")
