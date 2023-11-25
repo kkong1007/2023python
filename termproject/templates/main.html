@@ -35,83 +35,140 @@
     <dialog class="item-dialog" style="width: 50%">
         <div><strong>이력 관리</strong></div>
         <form action="" method="dialog">
-            <select name="op_code" id="op-code">
+            <select name="op_code" id="op-code" required>
                 <option value="0">출고</option>
                 <option value="1">입고</option>
             </select>
-            <input type="text" readonly />
-            <button type="submit">저장</button>
+            <input type="number" name="weight" required>
+            <input type="date" name="stock_date" required>
+            <button type="submit" id="dialog-submit">저장</button>
         </form>
         <button type="submit" id="dialog-close">닫기</button>
+        <div id="history-info">
+            <div id="stock-name">원료이름: <span></span></div>
+            <div id="stock-category">카테고리: <span></span></div>
+            <div id="stock-weight">재고: <span></span></div>
+        </div>
         <div id="histories">
             <table class="table table-hover">
                 <thead class="table-dark">
-                    <tr>
-                        <th scope="col">입/출고</th>
-                        <th scope="col">재고</th>                    
-                        <th scope="col">날짜</th>
-                    </tr>
-                    </thead>
-                    <tbody id="histories-tbody">
-                    </tbody>
+                <tr>
+                    <th scope="col">입/출고</th>
+                    <th scope="col">재고</th>
+                    <th scope="col">날짜</th>
+                </tr>
+                </thead>
+                <tbody id="histories-tbody">
+                </tbody>
             </table>
         </div>
     </dialog>
 {% endblock %}
 
 {% block scripts %}
-<script>
+    <script>
 
-    async function getItemHistory(itemId) {
-        const response = await fetch(`{% url 'item:detail' 9999999 %}`.replace(/9999999/, itemId));
-        const result = await response.json();
+        let selectedId;
 
-        console.log(result);
-        return result;
-    }
+        async function getItemHistory() {
+            const response = await fetch(`{% url 'item:detail' 9999999 %}`.replace(/9999999/, selectedId));
+            const result = await response.json();
 
-    function makeHistoryItem(json) {
-        let parent = document.querySelector("#histories-tbody");
-        json.histories.forEach(history => {
-            let tr = document.createElement("tr");
-            let td1 = document.createElement("td");
-            td1.innerHTML = history.op_code ? "입고" : "출고";
-            let td2 = document.createElement("td");
-            td2.innerHTML = history.weight;
-            let td3 = document.createElement("td");
-            td3.innerHTML = history.created_at;
+            console.log(result);
+            return result;
+        }
 
-            tr.appendChild(td1);
-            tr.appendChild(td2);
-            tr.appendChild(td3);
+        function makeHistoryItem(json) {
+            let parent = document.querySelector("#histories-tbody");
+            json.histories.forEach(history => {
+                let tr = document.createElement("tr");
+                let td1 = document.createElement("td");
+                td1.innerHTML = history.op_code ? "입고" : "출고";
+                let td2 = document.createElement("td");
+                td2.innerHTML = history.weight;
+                let td3 = document.createElement("td");
+                td3.innerHTML = history.created_at;
 
-            parent.appendChild(tr);
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+
+                parent.appendChild(tr);
+            });
+        }
+
+        const dialog = document.querySelector("dialog");
+        const itemRows = document.querySelectorAll(".item-row");
+        itemRows.forEach(item => {
+            item.addEventListener("click", async (e) => {
+                e.preventDefault();
+                let currentTarget = e.currentTarget;
+                console.log(currentTarget);
+                selectedId = parseInt(currentTarget.dataset.id);
+
+                const tr = document.querySelector(`tr[data-id="${selectedId}"]`);
+                const name = tr.querySelector("td:nth-child(2)");
+                const category = tr.querySelector("td:nth-child(3)");
+                const weight = tr.querySelector("td:nth-child(4)");
+
+                const element1 = document.querySelector("#stock-name span");
+                const element2 = document.querySelector("#stock-category span");
+                const element3 = document.querySelector("#stock-weight span");
+
+                element1.textContent = name.textContent;
+                element2.textContent = category.textContent;
+                element3.textContent = weight.textContent;
+
+                const response = await getItemHistory();
+                makeHistoryItem(response);
+                dialog.showModal();
+            });
         });
-    }
 
-    const dialog = document.querySelector("dialog");
-    const itemRows = document.querySelectorAll(".item-row");
-    itemRows.forEach(item => {
-        item.addEventListener("click", async (e) => {
+        dialog.addEventListener("close", e => {
+            document.querySelector("#histories-tbody").innerHTML = "";
+        });
+
+        const dialogClose = document.querySelector("#dialog-close");
+        dialogClose.addEventListener("click", e => {
             e.preventDefault();
-            let currentTarget = e.currentTarget;
-            console.log(currentTarget);
-            let id = currentTarget.dataset.id;
+            dialog.close();
+        })
 
-            const response = await getItemHistory(parseInt(id));
-            makeHistoryItem(response);
-            dialog.showModal();
+        const dialogSubmit = document.querySelector("#dialog-submit");
+        dialogSubmit.addEventListener("click", e => {
+            e.preventDefault();
+            const currentTarget = e.currentTarget;
+
+            const form = currentTarget.closest("form");
+            const formData = new FormData(form);
+            {#formData.set("weight", parseFloat(formData.get("weight")));#}
+
+            {#const jsonObject = Object.fromEntries(formData.entries());#}
+
+            fetch(`{% url 'item:stock' 9999999 %}`.replace(/9999999/, selectedId), {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("저장 성공!");
+                    const tbody = document.querySelector("#histories-tbody");
+                    const tr = document.createElement("tr");
+                    const td1 = document.createElement("td");
+                    td1.textContent = formData.get("op_code") == 1 ? "입고" : "출고";
+                    const td2 = document.createElement("td");
+                    td2.textContent = formData.get("weight")
+                    const td3 = document.createElement("td");
+                    td3.textContent = formData.get("stock_date")
+
+                    tr.append(td1, td2, td3);
+                    tbody.prepend(tr);
+                }
+            })
+            .catch(error => {
+                    console.error('Error:', error);
+            });
         });
-    });
-
-    dialog.addEventListener("close", e => {
-        document.querySelector("#histories-tbody").innerHTML = "";
-    });
-
-    const dialogClose = document.querySelector("#dialog-close");
-    dialogClose.addEventListener("click", e => {
-        e.preventDefault();
-        dialog.close();
-    })
-</script>
+    </script>
 {% endblock %}
