@@ -16,7 +16,13 @@ class Item(models.Model):
 
 
 class ItemStoredHistory(models.Model):
+
+    op_code = [
+        ('출고', False),
+        ('입고', True),
+    ]
+
     weight = models.FloatField()
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="histories")
-    op_code = models.BooleanField()
-    created_at = models.DateTimeField(auto_now=True)
+    op_code = models.BooleanField(choices=op_code)
+    created_at = models.DateTimeField()
