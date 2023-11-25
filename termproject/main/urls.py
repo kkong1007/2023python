@@ -6,6 +6,7 @@ app_name = 'item'
 
 urlpatterns = [
     path('', views.main, name='list'),
-    path('<int:id>', views.detail, name='detail'),
-    path('create', views.create, name='create')
+    path('<int:pk>', views.detail, name='detail'),
+    path('create', views.create, name='create'),
+    path('<int:pk>/stock', views.stock, name='stock')
 ]
