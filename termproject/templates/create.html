@@ -22,16 +22,12 @@
             {{ form.minimum_weight|add_class:"form-control" }}
         </div>
         <div class="form-group">
-            <label for="categoryId">카테고리</label>
-            <select name="category_id" id="categoryId">
-                {% for category in category_list %}
-                <option value="{{ category.id }}">{{ category.name }}</option>
-                {% endfor %}
-            </select>
+            {{ form.category_id|add_label_class:"" }}
+            {{ form.category_id|add_class:"form-control" }}
         </div>
         <div class="form-group">
-            <label for="">최초 입고 날짜</label>
-            <input type="datetime-local" name="stocked_date">
+            {{ form.stocked_date|add_label_class:"" }}
+            {{ form.stocked_date|add_class:"form-control" }}
         </div>
         <input type="submit" value="생성">
     </form>
