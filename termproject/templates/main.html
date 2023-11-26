@@ -7,7 +7,7 @@
     <div class="media-body">
         <div>
             <h5 class="mt-0" style="float: left">원료별 재고 현황</h5>
-            <a href="{% url 'item:create' %}" class="btn btn-outline-primary btn-sm" style="float: right">신규</a>
+            <a href="{% url 'item:create' %}" class="btn btn-outline-primary btn-sm" style="float: right">원료 신규 추가</a>
         </div>
         <table class="table table-hover">
             <thead class="table-dark">
@@ -16,17 +16,20 @@
                 <th scope="col">원료 이름</th>
                 <th scope="col">카테고리</th>
                 <th scope="col">재고</th>
-                <th scope="col">들어온 일자</th>
+                <th scope="col">최소 유지 재고</th>
+                <th scope="col">마지막 업데이트 일자</th>
             </tr>
             </thead>
             <tbody class="table-group-divider">
             {% for item in item_list %}
-                <tr class="item-row" data-id="{{ item.id }}">
+                <tr class="item-row {% if item.weight < item.minimum_weight %}warning{% endif %}"
+                    data-id="{{ item.id }}">
                     <th scope="row">{{ item.id }}</th>
                     <td>{{ item.name }}</td>
                     <td>{{ item.category.name }}</td>
                     <td>{{ item.weight }}</td>
-                    <td>{{ item.stocked_date }}</td>
+                    <td>{{ item.minimum_weight }}</td>
+                    <td>{{ item.updated_at }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -40,7 +43,7 @@
                 <option value="1">입고</option>
             </select>
             <input type="number" name="weight" required>
-            <input type="date" name="stock_date" required>
+            <input type="datetime-local" name="stock_date" required>
             <button type="submit" id="dialog-submit">저장</button>
         </form>
         <button type="submit" id="dialog-close">닫기</button>
@@ -150,25 +153,25 @@
                 method: 'POST',
                 body: formData,
             })
-            .then(response => {
-                if (response.ok) {
-                    alert("저장 성공!");
-                    const tbody = document.querySelector("#histories-tbody");
-                    const tr = document.createElement("tr");
-                    const td1 = document.createElement("td");
-                    td1.textContent = formData.get("op_code") == 1 ? "입고" : "출고";
-                    const td2 = document.createElement("td");
-                    td2.textContent = formData.get("weight")
-                    const td3 = document.createElement("td");
-                    td3.textContent = formData.get("stock_date")
+                .then(response => {
+                    if (response.ok) {
+                        alert("저장 성공!");
+                        const tbody = document.querySelector("#histories-tbody");
+                        const tr = document.createElement("tr");
+                        const td1 = document.createElement("td");
+                        td1.textContent = formData.get("op_code") == 1 ? "입고" : "출고";
+                        const td2 = document.createElement("td");
+                        td2.textContent = formData.get("weight")
+                        const td3 = document.createElement("td");
+                        td3.textContent = formData.get("stock_date")
 
-                    tr.append(td1, td2, td3);
-                    tbody.prepend(tr);
-                }
-            })
-            .catch(error => {
+                        tr.append(td1, td2, td3);
+                        tbody.prepend(tr);
+                    }
+                })
+                .catch(error => {
                     console.error('Error:', error);
-            });
+                });
         });
     </script>
 {% endblock %}
