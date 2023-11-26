@@ -34,25 +34,31 @@ def detail(request, pk):
     return JsonResponse(response_data)
 
 
+@transaction.atomic()
 def create(request):
     if request.method == 'GET':
-        category_list = Category.objects.all()
         new_form = NewItemForm()
         return render(request, 'create.html', context={
-            'form': new_form,
-            'category_list': category_list
+            'form': new_form
         })
     elif request.method == 'POST':
         form = NewItemForm(request.POST)
 
         if form.is_valid():
-            new_item = Item.objects.create(name=form.cleaned_data.get('name'), weight=form.cleaned_data.get('weight'),
-                                           category_id=form.cleaned_data.get('category_id'),
-                                           stocked_date=form.cleaned_data.get('stocked_date'))
+            new_item = Item.objects.create(name=form.cleaned_data.get('name'),
+                                           weight=form.cleaned_data.get('weight'),
+                                           minimum_weight=form.cleaned_data.get('minimum_weight'),
+                                           category=form.cleaned_data.get('category_id')
+                                           )
 
-            ItemStoredHistory.objects.create(item=new_item, weight=form.cleaned_data.get('weight'))
+            ItemStoredHistory.objects.create(item=new_item,
+                                             weight=form.cleaned_data.get('weight'),
+                                             created_at=form.cleaned_data.get('stocked_date'),
+                                             op_code=True
+                                             )
 
             return redirect(to="item:list")
+
 
 @transaction.atomic()
 @csrf_exempt
