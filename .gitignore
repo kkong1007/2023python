@@ -1,4 +1,6 @@
 python_env/
+.venv/
+.vscode/
 
 # Created by https://www.toptal.com/developers/gitignore/api/django,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=django,python
@@ -266,3 +268,5 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/django,python
+termproject/db.sqlite3
+termproject/main/__pycache__/

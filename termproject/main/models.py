@@ -38,7 +38,7 @@ class ItemStoredHistory(models.Model):
     weight = models.FloatField(verbose_name='입/출고량')
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="histories")
     op_code = models.BooleanField(choices=op_code, verbose_name='입고/출고')
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = '입출고 기록'

@@ -38,8 +38,10 @@ def detail(request, pk):
 def create(request):
     if request.method == 'GET':
         new_form = NewItemForm()
+        category_list = Category.objects.all()
         return render(request, 'create.html', context={
-            'form': new_form
+            'form': new_form,
+            'category_list': category_list
         })
     elif request.method == 'POST':
         form = NewItemForm(request.POST)
