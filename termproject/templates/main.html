@@ -122,16 +122,19 @@
                 element2.textContent = category.textContent;
                 element3.textContent = weight.textContent;
 
-                const response = await getItemHistory();
-                makeHistoryItem(response);
+                const response = await getItemHistory(); // JSON으로 해당 상품 재고 이력 갖고오기
+                makeHistoryItem(response); // 이력으로 table 만들어주기
                 dialog.showModal();
             });
         });
 
+        // 이력 지우기
         dialog.addEventListener("close", e => {
             document.querySelector("#histories-tbody").innerHTML = "";
+            location.reload(true);
         });
 
+        // dialog 닫기
         const dialogClose = document.querySelector("#dialog-close");
         dialogClose.addEventListener("click", e => {
             e.preventDefault();

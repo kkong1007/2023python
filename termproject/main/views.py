@@ -3,12 +3,16 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.views.decorators.csrf import csrf_exempt
 
+from django.db.models import F, ExpressionWrapper, fields
 from .models import Item, Category, ItemStoredHistory
 from .forms import NewItemForm, NewStockForm
 
 
 def main(request):
-    find_item_list = Item.objects.all()
+    find_item_list = Item.objects.annotate(difference=ExpressionWrapper(
+        F('weight') - F('minimum_weight'),
+        output_field=fields.FloatField()
+    )).order_by('difference', '-updated_at')
     return render(request, 'main.html', context={
         'item_list': find_item_list
     })
@@ -73,7 +77,7 @@ def stock(request, pk):
             op_code = form.cleaned_data.get('op_code')
             weight = form.cleaned_data.get('weight')
 
-            if (op_code):
+            if op_code == 1:
                 find_item.weight += weight
             else:
                 find_item.weight -= weight

@@ -40,6 +40,6 @@ class NewItemForm(forms.Form):
 
 
 class NewStockForm(forms.Form):
-    op_code = forms.BooleanField()
+    op_code = forms.IntegerField()
     weight = forms.FloatField()
     stock_date = forms.DateField(input_formats=['%Y-%m-%dT%H:%M'])
